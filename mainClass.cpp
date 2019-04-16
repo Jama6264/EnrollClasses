@@ -1,7 +1,6 @@
 #include "mainClass.hpp"
 #include <fstream>
 #include <iostream>
-#include <map>
 #include <sstream>
 using namespace std;
 
@@ -9,34 +8,93 @@ Main::Main() {
 }
 
 Main::Main(string filename) {
-  // fstream input;
-  // input.open(filename);
-  // string line;
-  // while (getline(cin, line)) {
-  // input the information to the database.
-  // assume there is a class CSCI 2270 from 15:00~15:50 Mon, Wed, Fri
-  string name = "CSCI";
-  Level* newL = new Level("2270");
-  Time* newT = new Time("15001550", "", "15001550", "", "15001550");
-  Classes* newClass = new Classes(name, newL->level, newT);
-  map<string, Level*>::iterator i;
-  // if (i == data.end()) {
-  Level* fourLevels = new Level[4];
-  data.insert(pair<string, Level*>(name, fourLevels));
-  i = data.find(name);
-  i->second[0].level = "1000";
-  i->second[1].level = "2000";
-  i->second[2].level = "3000";
-  i->second[3].level = "4000";
-  // }
-  i->second[stoi(newL->level) / 1000 - 1].classes.push_back(newClass);
-  // }
-  // i = data.find(name);
-  vector<Classes*>::iterator j;
-  for (j = i->second[1].classes.begin(); j != i->second[1].classes.end(); j++) {
-    cout << i->first << " => " << i->second[1].level << ": " << (*j)->name << (*j)->level << endl;
+  ifstream input;
+  input.open(filename);
+  string line;
+  while (getline(input, line)) {
+    string n, l, t, d, day = "";
+    stringstream ss;
+    ss << line;
+    getline(ss, n, ' ');
+    getline(ss, l, ' ');
+    getline(ss, t, ' ');
+    getline(ss, d);
+
+    for (int k = 0; k < d.length(); k++) {
+      switch (d[k]) {
+        case '1': {
+          day += "M";
+          break;
+        }
+        case '2': {
+          day += "T";
+          break;
+        }
+        case '3': {
+          day += "W";
+          break;
+        }
+        case '4': {
+          day += "Th";
+          break;
+        }
+        case '5': {
+          day += "F";
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+    }
+
+    Time* newT = new Time(t, day);
+    Level* newL = new Level(l);
+    Classes* newClass = new Classes(n, l, newT);
+    map<string, Level*>::iterator i = data.find(n);
+    if (i == data.end()) {
+      Level* fourLevels = new Level[4];
+      fourLevels[0].level = "1000";
+      fourLevels[1].level = "2000";
+      fourLevels[2].level = "3000";
+      fourLevels[3].level = "4000";
+      data.insert(pair<string, Level*>(n, fourLevels));
+    }
+    i = data.find(n);
+    i->second[stoi(l) / 1000 - 1].classes.push_back(newClass);
   }
+  input.close();
 }
 
 Main::~Main() {
+}
+
+void Main::printAll() {
+  map<string, Level*>::iterator i;
+  vector<Classes*>::iterator j;
+  for (i = data.begin(); i != data.end(); i++) {
+    for (int k = 0; k < 4; k++) {
+      if (!i->second[k].classes.empty()) {
+        cout << i->first << " => " << i->second[k].level << ": " << endl;
+        cout << (*i->second[k].classes.begin())->name << (*i->second[k].classes.begin())->level;
+        vector<Time*>::iterator t;
+        for (t = (*i->second[k].classes.begin())->times.begin(); t != (*i->second[k].classes.begin())->times.end(); t++) {
+          cout << " " << (*t)->d << " " << (*t)->t;
+        }
+        for (j = i->second[k].classes.begin(); j != i->second[k].classes.end(); j++) {
+          if (j == i->second[k].classes.begin()) {
+            continue;
+          }
+          cout << endl
+               << " *** " << endl
+               << (*j)->name << (*j)->level;
+          for (t = (*j)->times.begin(); t != (*j)->times.end(); t++) {
+            cout << " " << (*t)->d << " " << (*t)->t;
+          }
+        }
+        cout << endl
+             << endl;
+      }
+    }
+  }
 }
