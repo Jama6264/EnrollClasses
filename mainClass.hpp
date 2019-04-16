@@ -1,20 +1,16 @@
 #ifndef MAINCLASS_HPP
 #define MAINCLASS_HPP
 #include <iostream>
-#include <list>
 #include <map>
 #include <vector>
 using namespace std;
 
 struct Time {
-  string mon, tues, wed, thurs, fri;
+  string t, d;
 
-  Time(string m, string t, string w, string th, string f) {
-    mon = m;
-    tues = t;
-    wed = w;
-    thurs = th;
-    fri = f;
+  Time(string T, string D) {
+    t = T;
+    d = D;
   }
 };
 
@@ -48,6 +44,7 @@ class Main {
   Main();
   Main(string);
   ~Main();
+  void printAll();
 
  private:
   map<string, Level*> data;
