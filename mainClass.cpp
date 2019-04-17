@@ -51,17 +51,17 @@ Main::Main(string filename) {
     Time* newT = new Time(t, day);
     Level* newL = new Level(l);
     Classes* newClass = new Classes(n, l, newT);
-    map<string, Level*>::iterator i = data.find(n);
+    map<string, Level**>::iterator i = data.find(n);
     if (i == data.end()) {
-      Level* fourLevels = new Level[4];
-      fourLevels[0].level = "1000";
-      fourLevels[1].level = "2000";
-      fourLevels[2].level = "3000";
-      fourLevels[3].level = "4000";
-      data.insert(pair<string, Level*>(n, fourLevels));
+      Level** fourLevels = new Level*[4];
+      fourLevels[0] = new Level("1000");
+      fourLevels[1] = new Level("2000");
+      fourLevels[2] = new Level("3000");
+      fourLevels[3] = new Level("4000");
+      data.insert(pair<string, Level**>(n, fourLevels));
     }
     i = data.find(n);
-    i->second[stoi(l) / 1000 - 1].classes.push_back(newClass);
+    i->second[stoi(l) / 1000 - 1]->classes.push_back(newClass);
   }
   input.close();
 }
@@ -70,19 +70,19 @@ Main::~Main() {
 }
 
 void Main::printAll() {
-  map<string, Level*>::iterator i;
+  map<string, Level**>::iterator i;
   vector<Classes*>::iterator j;
   for (i = data.begin(); i != data.end(); i++) {
     for (int k = 0; k < 4; k++) {
-      if (!i->second[k].classes.empty()) {
-        cout << i->first << " => " << i->second[k].level << ": " << endl;
-        cout << (*i->second[k].classes.begin())->name << (*i->second[k].classes.begin())->level;
+      if (!i->second[k]->classes.empty()) {
+        cout << i->first << " => " << i->second[k]->level << ": " << endl;
+        cout << (*i->second[k]->classes.begin())->name << (*i->second[k]->classes.begin())->level;
         vector<Time*>::iterator t;
-        for (t = (*i->second[k].classes.begin())->times.begin(); t != (*i->second[k].classes.begin())->times.end(); t++) {
+        for (t = (*i->second[k]->classes.begin())->times.begin(); t != (*i->second[k]->classes.begin())->times.end(); t++) {
           cout << " " << (*t)->d << " " << (*t)->t;
         }
-        for (j = i->second[k].classes.begin(); j != i->second[k].classes.end(); j++) {
-          if (j == i->second[k].classes.begin()) {
+        for (j = i->second[k]->classes.begin(); j != i->second[k]->classes.end(); j++) {
+          if (j == i->second[k]->classes.begin()) {
             continue;
           }
           cout << endl
