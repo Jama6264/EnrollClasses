@@ -24,16 +24,12 @@ struct Classes {
     level = l;
     times.push_back(t);
   }
-  Classes(Time* t) {
-    times.push_back(t);
-  }
 };
 
 struct Level {
   string level;
   vector<Classes*> classes;
 
-  Level(){};
   Level(string l) {
     level = l;
   }
@@ -47,7 +43,7 @@ class Main {
   void printAll();
 
  private:
-  map<string, Level*> data;
+  map<string, Level**> data;
 };
 
 #endif
