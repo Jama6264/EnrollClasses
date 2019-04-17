@@ -99,7 +99,6 @@ void Main::printAll() {
             continue;
           }
           cout << endl
-               << " *** " << endl
                << (*j)->name << (*j)->level;
           for (t = (*j)->times.begin(); t != (*j)->times.end(); t++) {
             cout << " " << (*t)->d << " " << (*t)->t;
