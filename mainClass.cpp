@@ -61,7 +61,20 @@ Main::Main(string filename) {
       data.insert(pair<string, Level**>(n, fourLevels));
     }
     i = data.find(n);
-    i->second[stoi(l) / 1000 - 1]->classes.push_back(newClass);
+    bool flag = false;
+    vector<Classes*>::iterator c;
+    if (!flag) {
+      for (c = i->second[stoi(l) / 1000 - 1]->classes.begin(); c != i->second[stoi(l) / 1000 - 1]->classes.end(); c++) {
+        if ((*c)->level == l) {
+          (*c)->times.push_back(newT);
+          flag = true;
+          break;
+        }
+      }
+    }
+    if (flag == false) {
+      i->second[stoi(l) / 1000 - 1]->classes.push_back(newClass);
+    }
   }
   input.close();
 }
