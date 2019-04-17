@@ -20,9 +20,6 @@ Main::Main(string filename) {
     getline(ss, t, ' ');
     getline(ss, d);
 
-    Time* newT = new Time(t, d);
-    Level* newL = new Level(l);
-    Classes* newClass = new Classes(n, l, newT);
     map<string, Level**>::iterator i = data.find(n);
     if (i == data.end()) {
       Level** fourLevels = new Level*[4];
@@ -35,6 +32,7 @@ Main::Main(string filename) {
     i = data.find(n);
     bool flag = false;
     vector<Classes*>::iterator c;
+    Time* newT = new Time(t, d);
     if (!flag) {
       for (c = i->second[stoi(l) / 1000 - 1]->classes.begin(); c != i->second[stoi(l) / 1000 - 1]->classes.end(); c++) {
         if ((*c)->level == l) {
@@ -45,6 +43,7 @@ Main::Main(string filename) {
       }
     }
     if (flag == false) {
+      Classes* newClass = new Classes(n, l, newT);
       i->second[stoi(l) / 1000 - 1]->classes.push_back(newClass);
     }
   }
