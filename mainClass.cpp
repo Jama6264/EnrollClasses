@@ -12,7 +12,7 @@ Main::Main(string filename) {
   input.open(filename);
   string line;
   while (getline(input, line)) {
-    string n, l, t, d, day = "";
+    string n, l, t, d;
     stringstream ss;
     ss << line;
     getline(ss, n, ' ');
@@ -20,35 +20,7 @@ Main::Main(string filename) {
     getline(ss, t, ' ');
     getline(ss, d);
 
-    for (int k = 0; k < d.length(); k++) {
-      switch (d[k]) {
-        case '1': {
-          day += "M";
-          break;
-        }
-        case '2': {
-          day += "T";
-          break;
-        }
-        case '3': {
-          day += "W";
-          break;
-        }
-        case '4': {
-          day += "Th";
-          break;
-        }
-        case '5': {
-          day += "F";
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-    }
-
-    Time* newT = new Time(t, day);
+    Time* newT = new Time(t, d);
     Level* newL = new Level(l);
     Classes* newClass = new Classes(n, l, newT);
     map<string, Level**>::iterator i = data.find(n);
@@ -89,23 +61,15 @@ void Main::printAll() {
     for (int k = 0; k < 4; k++) {
       if (!i->second[k]->classes.empty()) {
         cout << i->first << " => " << i->second[k]->level << ": " << endl;
-        cout << (*i->second[k]->classes.begin())->name << (*i->second[k]->classes.begin())->level;
         vector<Time*>::iterator t;
-        for (t = (*i->second[k]->classes.begin())->times.begin(); t != (*i->second[k]->classes.begin())->times.end(); t++) {
-          cout << " " << (*t)->d << " " << (*t)->t;
-        }
         for (j = i->second[k]->classes.begin(); j != i->second[k]->classes.end(); j++) {
-          if (j == i->second[k]->classes.begin()) {
-            continue;
-          }
-          cout << endl
-               << (*j)->name << (*j)->level;
+          cout << (*j)->name << (*j)->level;
           for (t = (*j)->times.begin(); t != (*j)->times.end(); t++) {
             cout << " " << (*t)->d << " " << (*t)->t;
           }
+          cout << endl;
         }
-        cout << endl
-             << endl;
+        cout << endl;
       }
     }
   }
