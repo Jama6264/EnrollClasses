@@ -29,11 +29,11 @@ Main::Main(string filename) {
       fourLevels[3] = new Level("4000");
       data.insert(pair<string, Level**>(n, fourLevels));
     }
+    Time* newT = new Time(t, d);
     i = data.find(n);
     bool flag = false;
-    vector<Classes*>::iterator c;
-    Time* newT = new Time(t, d);
     if (!flag) {
+      vector<Classes*>::iterator c;
       for (c = i->second[stoi(l) / 1000 - 1]->classes.begin(); c != i->second[stoi(l) / 1000 - 1]->classes.end(); c++) {
         if ((*c)->level == l) {
           (*c)->times.push_back(newT);
