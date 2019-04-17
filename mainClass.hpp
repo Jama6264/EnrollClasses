@@ -16,19 +16,17 @@ struct Time {
 
 struct Classes {
   string name;
-  string level;
   vector<Time*> times;
 
-  Classes(string n, string l, Time* t) {
+  Classes(string n, Time* t) {
     name = n;
-    level = l;
     times.push_back(t);
   }
 };
 
 struct Level {
   string level;
-  vector<Classes*> classes;
+  map<string, Classes*> classes;  // key(first) = level of the class; Classes*(second) represent the other information of the class.
 
   Level(string l) {
     level = l;
