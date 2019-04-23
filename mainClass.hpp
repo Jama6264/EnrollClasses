@@ -2,8 +2,18 @@
 #define MAINCLASS_HPP
 #include <iostream>
 #include <map>
+#include <set>
 #include <vector>
 using namespace std;
+
+struct InputClass {
+  string prefix, number;
+
+  InputClass(string p, string n) {
+    prefix = p;
+    number = n;
+  }
+};
 
 struct Time {
   string t, d;
@@ -33,15 +43,34 @@ struct Level {
   }
 };
 
+struct Schedule {
+  string name, level;
+  Schedule* next;
+  vector<Time*> times;
+
+  Schedule(string n, string l, vector<Time*> t) {
+    name = n;
+    level = l;
+    times = t;
+    next = NULL;
+  }
+};
+
 class Main {
  public:
   Main();
   Main(string);
   ~Main();
   void printAll();
+  bool readInput(vector<InputClass>);
+  void inputEdges();
+  void computeSchedule(int);
 
  private:
   map<string, Level**> data;
+  vector<Schedule*> schedules;
+  map<string, set<int>> slot;
+  void helper(Schedule*, vector<string>, int, int);
 };
 
 #endif
