@@ -47,6 +47,7 @@ struct Schedule {
   string name, level;
   Schedule* next;
   vector<Time*> times;
+  bool visited;
 
   Schedule(string n, string l, vector<Time*> t) {
     name = n;
@@ -70,7 +71,8 @@ class Main {
   map<string, Level**> data;
   vector<Schedule*> schedules;
   map<string, set<int>> slot;
-  void helper(Schedule*, vector<string>, int, int);
+  vector<string> option;
+  void helper(Schedule*, int, int&);
 };
 
 #endif
