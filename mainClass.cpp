@@ -11,22 +11,42 @@ Main::Main(string filename) {
   input.open(filename);
   string line;
   while (getline(input, line)) {
-    string n, l, t, d;  // name, level, time, day of the week
+    string n, l, start, startT, end, endT, t, d, useless;  // name, level, time, day of the week
     stringstream ss;
     ss << line;
     getline(ss, n, ' ');
     getline(ss, l, ' ');
-    getline(ss, t, ' ');
+    getline(ss, start, ' ');
+    start.erase(2, 1);
+    getline(ss, startT, ' ');
+    if (startT == "PM" && stoi(start) / 100 != 12) {
+      start = to_string(stoi(start) + 1200);
+    }
+    getline(ss, useless, ' ');
+    getline(ss, end, ' ');
+    end.erase(2, 1);
+    getline(ss, endT, ' ');
+    if (endT == "PM" && stoi(end) / 100 != 12) {
+      end = to_string(stoi(end) + 1200);
+    }
+    t = start + "-" + end;
     getline(ss, d);
+    if (d == "M-F") {
+      d = "MTWTHF";
+    }
 
     auto i = data.find(n);
     if (i == data.end()) {
-      Level** fourLevels = new Level*[4];
-      fourLevels[0] = new Level("1000");
-      fourLevels[1] = new Level("2000");
-      fourLevels[2] = new Level("3000");
-      fourLevels[3] = new Level("4000");
-      data.insert(pair<string, Level**>(n, fourLevels));
+      Level** allLevels = new Level*[7];
+      allLevels[0] = new Level("1000");
+      allLevels[1] = new Level("2000");
+      allLevels[2] = new Level("3000");
+      allLevels[3] = new Level("4000");
+      allLevels[4] = new Level("5000");
+      allLevels[5] = new Level("6000");
+      allLevels[6] = new Level("7000");
+      allLevels[7] = new Level("8000");
+      data.insert(pair<string, Level**>(n, allLevels));
     }
     Time* newT = new Time(t, d);
     i = data.find(n);
@@ -43,6 +63,8 @@ Main::Main(string filename) {
 
 Main::~Main() {
   data.clear();
+  schedules.clear();
+  slot.clear();
 }
 
 void Main::printAll() {
@@ -81,11 +103,6 @@ bool Main::readInput(vector<InputClass> user) {
         return false;
       } else {
         Schedule* newS = new Schedule(v->prefix, v->number, c->second->times);
-        // cout << v->prefix << " " << v->number << endl;
-        // for (auto i = c->second->times.begin(); i != c->second->times.end(); i++) {
-        //   cout << (*i)->d << " " << (*i)->t;
-        // }
-        // cout << endl;
         schedules.push_back(newS);
       }
     }
@@ -97,13 +114,6 @@ void Main::inputEdges() {
   for (auto i = schedules.begin(); i != schedules.end() - 1; i++) {
     (*i)->next = *(i + 1);
   }
-  // for (auto i = schedules.begin(); i != schedules.end(); i++) {
-  //   if ((*i)->next != NULL) {
-  //     cout << (*i)->name << " => " << (*i)->next->name << endl;
-  //   } else {
-  //     cout << (*i)->name << " => NULL" << endl;
-  //   }
-  // }
 }
 
 vector<int> startTime(Time* t) {
@@ -114,6 +124,9 @@ vector<int> startTime(Time* t) {
   getline(ss, stringEnd);
   int intStart = stoi(stringStart) / 100;
   int intEnd = stoi(stringEnd) / 100;
+  if (stoi(stringEnd) % 100 == 0) {
+    intEnd--;
+  }
   vector<int> timeSlot;
   for (int i = intStart; i <= intEnd; i++) {
     timeSlot.push_back(i);
@@ -127,14 +140,15 @@ void printSchedule(vector<string> option) {
   }
 }
 
-void Main::helper(Schedule* current, vector<string> option, int count, int optionNum) {
-  if (current != NULL) {
+void Main::helper(Schedule* current, int count, int& optionNum) {
+  if (!current->visited) {
     for (auto i = current->times.begin(); i != current->times.end(); i++) {
+      bool flag = true;
       vector<int> st = startTime(*i);
       for (int j = 0; j < (*i)->d.length(); j++) {
         string index = "";
-        if ((*i)->d[j] == 'T' && (*i)->d[j + 1] == 'h') {
-          index = "Th";
+        if ((*i)->d[j] == 'T' && (*i)->d[j + 1] == 'H') {
+          index = "TH";
         } else {
           index += (*i)->d[j];
         }
@@ -142,32 +156,86 @@ void Main::helper(Schedule* current, vector<string> option, int count, int optio
           if (slot[index].find(*k) == slot[index].end()) {
             continue;
           } else {
-            return;
+            flag = false;
+            break;
           }
         }
-        for (auto k = st.begin(); k != st.end(); k++) {
-          slot[index].insert(*k);
-        }
       }
-      string classInfo = current->name + current->level + " " + (*i)->d + " " + (*i)->t;
-      option.push_back(classInfo);
-      helper(current->next, option, count, optionNum);
+      if (flag == true) {
+        for (int j = 0; j < (*i)->d.length(); j++) {
+          string index = "";
+          if ((*i)->d[j] == 'T' && (*i)->d[j + 1] == 'H') {
+            index = "TH";
+          } else {
+            index += (*i)->d[j];
+          }
+          for (auto k = st.begin(); k != st.end(); k++) {
+            slot[index].insert(*k);
+          }
+        }
+        string classInfo = current->name + current->level + " " + (*i)->d + " " + (*i)->t;
+        option.push_back(classInfo);
+        current->visited = true;
+      }
+      if (current->next != NULL) {
+        helper(current->next, count, optionNum);
+      }
       if (option.size() == count) {
         cout << "Option " << optionNum << ":" << endl;
         printSchedule(option);
         cout << endl;
         optionNum++;
+        option.pop_back();
+        vector<int> st = startTime(*i);
+        for (int j = 0; j < (*i)->d.length(); j++) {
+          string index = "";
+          if ((*i)->d[j] == 'T' && (*i)->d[j + 1] == 'H') {
+            index = "TH";
+          } else {
+            index += (*i)->d[j];
+          }
+          for (auto k = st.begin(); k != st.end(); k++) {
+            slot[index].erase(*k);
+          }
+        }
+      }
+      if (flag == true) {
+        vector<int> st = startTime(*i);
+        for (int j = 0; j < (*i)->d.length(); j++) {
+          string index = "";
+          if ((*i)->d[j] == 'T' && (*i)->d[j + 1] == 'H') {
+            index = "TH";
+          } else {
+            index += (*i)->d[j];
+          }
+          for (auto k = st.begin(); k != st.end(); k++) {
+            slot[index].erase(*k);
+          }
+        }
       }
     }
-    option.pop_back();
+    if (!option.empty()) {
+      option.pop_back();
+    }
+    current->visited = false;
   }
 }
 
 void Main::computeSchedule(int count) {
-  vector<string> option;
   int optionNum = 1;
 
-  helper(*schedules.begin(), option, count, optionNum);
-  cout << endl
-       << "(If there is no option printed out, that means it is impossible to have all the classes at once)" << endl;
+  if (count == 1) {
+    cout << endl
+         << "Since you only have one class, here is the information of the class:" << endl;
+    cout << (*schedules.begin())->name << " " << (*schedules.begin())->level;
+    for (auto i = (*schedules.begin())->times.begin(); i != (*schedules.begin())->times.end(); i++) {
+      cout << " " << (*i)->d << " " << (*i)->t;
+    }
+    cout << endl
+         << endl;
+  } else {
+    helper(*schedules.begin(), count, optionNum);
+    cout << endl
+         << "(If there is no option printed out, that means it is impossible to have all the classes at once)" << endl;
+  }
 }
